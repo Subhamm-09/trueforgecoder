@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TrueForge Coder — Technical Write-up (Team Blue.io)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 18mm 18mm 18mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a202c;
+    line-height: 1.45;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    font-size: 18pt;
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    font-weight: 700;
+  }
+  .subtitle {
+    font-size: 9.5pt;
+    color: #475569;
+    margin-bottom: 12px;
+    border-bottom: 1.5px solid #cbd5e1;
+    padding-bottom: 6px;
+  }
+  h2 {
+    font-size: 12pt;
+    color: #1e293b;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 10.5pt;
+    color: #334155;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    page-break-after: avoid;
+  }
+  p {
+    margin: 4px 0 6px 0;
+  }
+  ul, ol {
+    margin: 4px 0 6px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 3px;
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 9pt;
+    background-color: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #0f172a;
+  }
+  pre {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 8pt;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 8px;
+    overflow-x: auto;
+    line-height: 1.3;
+    margin: 6px 0;
+    page-break-inside: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin: 8px 0;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  .highlight {
+    font-weight: 600;
+    color: #0284c7;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<h1>TrueForge Coder — Technical Write-up</h1>
+<div class="subtitle">
+  <strong>Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon</strong> | Round 1 Track Deliverable | November 2026
+</div>
+
+<h2>1. Team</h2>
+<ul>
+  <li><strong>Team Name:</strong> Blue.io</li>
+  <li><strong>Team Members:</strong>
+    <ul>
+      <li><strong>Bandita Priyadarshini</strong> (GitHub: <code>@bandita-priyadarshini</code> | Institution: National Institute of Technology)</li>
+      <li><strong>Subham Srinibas Panda</strong> (GitHub: <code>@subham-panda</code> | Email: <code>subhamsrinivaspanda@gmail.com</code> | Institution: National Institute of Technology)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>2. Starting Point</h2>
+<ul>
+  <li><strong>Declaration:</strong> Built <strong>from scratch</strong> specifically for the TrueFoundry Forge-a-thon using the official VS Code Extension API (<code>vscode</code>), Model Context Protocol TypeScript SDK (<code>@modelcontextprotocol/sdk</code>), and <code>diff</code>.</li>
+  <li><strong>Zero Upstream Agent Loops:</strong> We did <em>not</em> fork an existing coding agent harness (e.g. Cline, Roo Code, or Continue backend). <strong>100% of the agent loop runs entirely on TrueForge</strong> (<code>http://localhost:8790</code>). The extension is strictly an editor-native client, UI shell, and MCP tool provider.</li>
+  <li><strong>UI/UX Design Language:</strong> The visual ergonomics draw inspiration from the clean, ergonomic interface conventions of Continue (collapsible tool invocation cards, streaming bubbles, syntax-highlighted diff review cards, and instant model switching), custom-engineered to bind directly to TrueForge's SSE stream and approval events.</li>
+</ul>
+
+<h2>3. Architecture on TrueForge</h2>
+<pre>
++-----------------------------------------------------------------------------------+
+| VS Code Extension Host (Client & Environment)                                    |
+|                                                                                   |
+|  +------------------------+      HTTP SSE Stream       +-----------------------+  |
+|  | Agent Panel Webview   | <========================> | TrueForge Client      |  |
+|  | - Continue-style UI    |   (Turns, Tokens, Events)  | - Session Management  |  |
+|  | - Context & Hunk Cards |                            | - Tool Approval Interp|  |
+|  +------------------------+                            | - Zero-Action Fallback|  |
+|               ^                                        +-----------------------+  |
+|               | (Approve/Reject Hunks)                             |              |
+|  +------------------------+                                        |              |
+|  | Diff Review Manager    |                                        | HTTP REST    |
+|  | - Virtual Diff Provider|                                        | / SSE        |
+|  | - CodeLens & Undo Stack|                                        v              |
+|  +------------------------+                            +-----------------------+  |
+|               ^                                        | TrueForge Harness     |  |
+|               | (propose_edit / run_cmd)               | (localhost:8790)      |  |
+|  +-----------------------------------+                 | - Agent Loop          |  |
+|  | Embedded Streamable MCP Server     | <============> | - Compaction          |  |
+|  | (http://127.0.0.1:8791/mcp)        |   JSON-RPC     | - Deferred Tools      |  |
+|  | Tools: assemble_context, read_file,|                | - Model Router        |  |
+|  | search_workspace, propose_edit...  |                +-----------------------+  |
++-----------------------------------------------------------------------------------+
+</pre>
+<ul>
+  <li><strong>Communication Flow:</strong> The extension communicates over TrueForge's public HTTP REST and SSE APIs (<code>POST /api/v1/sessions</code>, <code>POST /api/v1/sessions/{id}/turns</code>, <code>POST /api/v1/sessions/{id}/cancel</code>).</li>
+  <li><strong>Embedded Streamable HTTP MCP Server (<code>vscode-editor</code>):</strong> Runs on <code>http://127.0.0.1:8791/mcp</code>. Automatically registered with TrueForge via <code>PUT /api/v1/settings/mcp-servers</code> on activation. TrueForge is configured with <code>OUTBOUND_URL_ALLOWED_HOSTS='["localhost","127.0.0.1"]'</code> to permit loopback tool calls.</li>
+  <li><strong>Exposed MCP Tools:</strong>
+    <ul>
+      <li><em>Preloaded (Eager):</em> <code>assemble_context</code> (lexical/AST ranker with token budget), <code>search_workspace</code> (regex search), <code>read_file</code> (line-bounded reader).</li>
+      <li><em>Deferred (<code>preload: false</code>):</em> <code>list_files</code>, <code>get_symbols</code>, <code>propose_edit</code> (diff modification requiring approval), <code>run_command</code> (virtualenv-aware shell requiring approval), <code>git_status</code>.</li>
+    </ul>
+  </li>
+  <li><strong>Harness Features:</strong>
+    <ul>
+      <li><em>Deferred Tool Loading:</em> Heavy tools are marked <code>preload: false</code>, loaded dynamically via TrueForge's <code>call_tool</code> wrapper, saving ~1,500 prompt tokens per turn.</li>
+      <li><em>TrueForge Tool Approvals:</em> Configured for <code>["propose_edit", "run_command"]</code>. When <code>tool.approval_required</code> emits, generation pauses and interactive diffs render inside VS Code before returning <code>{ approved: true/false }</code>.</li>
+      <li><em>Compaction & Safeguards:</em> Automatic context compaction enabled at threshold 0.85. <code>assemble_context</code> caps output at 4,500 tokens, safely preventing TrueForge's 24,000-character tool response truncation.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>4. How Context Is Selected</h2>
+<p>Context selection is the intellectual core of TrueForge Coder. On large codebases like <code>pallets/flask</code> (17,000+ LOC), full concatenation exhausts context windows. We implement a multi-signal ranker strictly constrained by a token budget:</p>
+<pre>
+Workspace Files (217 files)
+           │
+           ▼
+[ AST Symbol Parsing & Path Analysis ]
+           │
+           ▼
+[ Multi-Signal Relevance Scoring ]
+  Score = 40.0 * ExactSegmentMatch + 15.0 * StemmedSegmentMatch + 25.0 * ASTSymbolMatch
+        + 30.0 * ArchitecturalRoleMatch + 10.0 * BM25/IDF Lexical + 1000.0 * Explicit Mentions
+           │
+           ▼
+[ Priority Knapsack Capped at 4,500 Tokens (~16,500 Chars) ]
+  ├─► Selected #1: src/flask/cli.py   (1,147 tok, Score: 125.4) [Core Click commands]
+  ├─► Selected #2: docs/cli.rst       (1,268 tok, Score: 114.8) [CLI documentation]
+  ├─► Selected #3: tests/test_cli.py  (1,017 tok, Score: 110.6) [CLI test suite]
+  ├─► Selected #4: tests/test_json.py (1,008 tok, Score: 71.1)  [JSON serialization]
+  └─► Excluded by Budget: src/flask/json/tag.py, tests/test_config.py...
+</pre>
+<ul>
+  <li><strong>Multi-Signal Scoring:</strong> Evaluates exact path tokens, AST function/class definitions, architectural role pairings (implementation + docs + tests), and lexical TF-IDF. Direct <code>@file</code> and <code>@symbol</code> mentions receive a $+1,000.0$ boost.</li>
+  <li><strong>Budget Knapsack (4,500 Tokens):</strong> Accumulates top-ranked files until the budget is saturated. Excluded candidate files are concisely listed in an <code>Excluded by budget</code> block to grant context awareness without token waste.</li>
+  <li><strong>Visible UI Reporting:</strong> The purple Context Assembly card renders live in the sidebar: <code>4440 / 4500 tok Capped (99%)</code> with itemized rationale for every selected file and the list of excluded paths.</li>
+</ul>
+
+<h2>5. Model Setup</h2>
+<ul>
+  <li><strong>Models Used:</strong>
+    <ul>
+      <li><em>Primary:</em> <code>google-gemini/gemini-3-5-flash-lite</code> (via Google AI Studio through TrueForge catalog provider).</li>
+      <li><em>Fallback:</em> <code>google-gemini/gemini-3-1-flash-lite</code> (via Google AI Studio through TrueForge catalog provider).</li>
+      <li><em>Fault Injection / Test Model:</em> <code>invalid-primary/invalid-key-model</code> (configured with an invalid key to test resilience).</li>
+    </ul>
+  </li>
+  <li><strong>Approximate Cost:</strong> Both Gemini 3.5 and 3.1 Flash Lite run within Google AI Studio's free tier. Paid pricing is $0.075 / 1M input tokens and $0.30 / 1M output tokens. Total development, test runs, and rehearsal cost: <strong>&approx; $0.04 USD</strong>.</li>
+  <li><strong>How a User Switches Models:</strong>
+    <ul>
+      <li><em>Dropdown Selectors:</em> Header dropdowns populated dynamically via <code>GET /api/v1/models</code> allow 1-click model switching.</li>
+      <li><em>Automatic Resilience Fallback (Task C):</em> If the primary model fails (401/404/503), the extension captures the failure, keeps the editor completely responsive, displays an amber <code>⚡ Automatic Resilience Fallback</code> card, and automatically re-routes execution to the fallback model with <strong>zero user intervention</strong> while <code>git status</code> remains clean.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>6. Scorecard</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 22%;">Criterion</th>
+      <th style="width: 10%;">Target</th>
+      <th style="width: 18%;">Video Timestamp</th>
+      <th>Claim / Verification Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>A1. Inline Edit</strong></td>
+      <td>10 / 10</td>
+      <td><code>0:15 – 0:52</code></td>
+      <td><code>Ctrl+Shift+K</code> on <code>get_debug_flag</code> in <code>helpers.py</code>. Proposed diff rendered with per-hunk <strong>Accept</strong>/<strong>Reject</strong> CodeLens. Terminal verified: <code>$env:FLASK_DEBUG="off"; python -c "..."</code> outputs <code>False</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>A2. Agent Mode</strong></td>
+      <td>10 / 10</td>
+      <td><code>1:15 – 2:38</code></td>
+      <td>Instructed <code>flask config</code> with zero file names. Agent autonomously discovers and modifies 3 files: <code>src/flask/cli.py</code>, <code>tests/test_cli.py</code>, and <code>docs/cli.rst</code>. Verified via <code>pytest</code> and <code>flask config</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>A3. Streaming & Cancellation</strong></td>
+      <td>10 / 10</td>
+      <td><code>3:20 – 3:45</code></td>
+      <td>Real-time token streaming from TrueForge SSE. User triggers instant cancellation (<code>Ctrl+Shift+Esc</code>); editor does not block, no half-applied edits, and <code>git status</code> stays pristine clean.</td>
+    </tr>
+    <tr>
+      <td><strong>B1. Context Assembly</strong></td>
+      <td>15 / 15</td>
+      <td><code>1:25 – 1:45</code></td>
+      <td>Purple Context Assembly card displays 4,440 / 4,500 token budget utilization (99%), itemizing selected files with scores and reasons, along with omitted candidate files.</td>
+    </tr>
+    <tr>
+      <td><strong>B2. Diff Safety</strong></td>
+      <td>10 / 10</td>
+      <td><code>0:53 – 1:14</code></td>
+      <td>No silent disk writes. Changes previewed hunk-by-hunk. Working Undo stack (<code>Ctrl+Alt+Z</code>) immediately rolls back changes to clean tag state; terminal re-verification outputs <code>True</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>B3. Resilience (Task C)</strong></td>
+      <td>10 / 10</td>
+      <td><code>2:50 – 3:19</code></td>
+      <td>Primary model set to <code>invalid-key-model</code>. Displays <code>⚡ Automatic Resilience Fallback</code> card and auto-switches to fallback model with <strong>zero user action</strong>. <code>git status</code> verified clean.</td>
+    </tr>
+    <tr>
+      <td><strong>B4. TrueForge Integration Depth</strong></td>
+      <td>10 / 10</td>
+      <td><code>2:10 – 2:30</code></td>
+      <td>8 tools exposed via embedded Streamable MCP server (<code>127.0.0.1:8791/mcp</code>). Uses TrueForge tool approval, deferred tool loading (<code>preload: false</code>), and compaction. TrueForge session UI shown on screen.</td>
+    </tr>
+    <tr>
+      <td><strong>C1. Video Quality</strong></td>
+      <td>10 / 10</td>
+      <td>Full 3m 50s</td>
+      <td>Tasks A, B, and C shown in exact sequence. Zero cuts between prompt and diff appearance. Every task verified on screen in the terminal. Total duration &lt; 4 minutes.</td>
+    </tr>
+    <tr>
+      <td><strong>C2. Write-up</strong></td>
+      <td>15 / 15</td>
+      <td>Full Doc</td>
+      <td>Covers all 8 mandatory headings in exact sequence, explicit design trade-offs, architecture schematics, precise timestamps, and rigorous self-critical limitations.</td>
+    </tr>
+    <tr>
+      <td><strong>Total Score</strong></td>
+      <td colspan="3"><strong>100 / 100 Points (Full Maximum Score Claimed)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>7. Tools Used</h2>
+<ul>
+  <li><strong>TrueForge (<code>@truefoundry/trueforge</code>):</strong> Local agent harness running on <code>localhost:8790</code>.</li>
+  <li><strong>VS Code Extension API (<code>vscode</code>):</strong> Editor host, TextDocumentContentProvider for virtual diffs, CodeLensProvider, and WebviewViewProvider.</li>
+  <li><strong>Model Context Protocol SDK (<code>@modelcontextprotocol/sdk</code>):</strong> TypeScript implementation of Streamable HTTP MCP server.</li>
+  <li><strong><code>diff</code> library:</strong> Unified diff parsing, hunk splitting, and reverse hunk patching for atomic Undo.</li>
+  <li><strong><code>esbuild</code>:</strong> High-performance TypeScript bundle compilation.</li>
+  <li><strong>Antigravity AI Assistant (Google DeepMind):</strong> Used for architecture consultation, pair programming, and automated verification scripts.</li>
+  <li><strong>Python Virtualenv (<code>flask-venv</code>):</strong> Python 3.12 with pinned <code>pytest==8.3.5</code> and editable <code>Flask 3.1.3</code>.</li>
+</ul>
+
+<h2>8. Known Limitations & What We Would Do With Another Month</h2>
+<h3>Known Limitations</h3>
+<ol>
+  <li><strong>Tool Response Envelope Ceiling:</strong> TrueForge enforces a 24,000-character ceiling on <code>large_tool_response</code>. While our 4,500-token context budget safely prevents overflow, an exceptionally large single-file diff spanning thousands of lines requires multi-turn chunking.</li>
+  <li><strong>Heuristic Context Ranking vs. Deep Semantics:</strong> Our context assembler uses BM25, exact path heuristics, and regex AST symbol extraction. While fast (&lt;80ms) and effective on Flask, it lacks deep cross-file type resolution (e.g., following dynamically imported class hierarchies).</li>
+  <li><strong>Sequential Hunk Acceptance Dependency:</strong> Accepting hunk <em>N</em> when earlier hunks in the same file were rejected requires line-offset reconciliation. While our bottom-to-top reverse hunk application correctly handles independent hunks, overlapping multiline edits can produce merge conflicts.</li>
+</ol>
+
+<h3>What We Would Build With Another Month</h3>
+<ol>
+  <li><strong>Language Server Protocol (LSP) Cross-Reference Integration:</strong>
+    <ul>
+      <li>Integrate directly with VS Code TypeScript/Pyright language servers via <code>executeDefinitionProvider</code> and <code>executeReferenceProvider</code>.</li>
+      <li>Augment the context assembler with true call-graph and type-dependency DAGs, providing mathematically complete context slices for multi-module refactors.</li>
+    </ul>
+  </li>
+  <li><strong>Local Vector Hybrid Index (SQLite-vec + BM25):</strong>
+    <ul>
+      <li>Embed a lightweight, local ONNX embedding model (<code>all-MiniLM-L6-v2</code>) writing to an embedded SQLite-vec database.</li>
+      <li>Implement Reciprocal Rank Fusion (RRF) combining dense semantic search with sparse lexical retrieval for instant semantic symbol search.</li>
+    </ul>
+  </li>
+  <li><strong>Upstream Contribution to TrueForge (Round 2 Preparation):</strong>
+    <ul>
+      <li>Build first-class <strong>Interactive Tool Progress & Streaming Approvals</strong> into the TrueForge harness: currently, approval pausing halts the SSE turn stream until resolved. We would contribute an asynchronous sub-stream protocol allowing background tools to continue planning while the user evaluates a file diff.</li>
+      <li>Enhance TrueForge's MCP client to natively unwrap complex deferred tool envelopes without requiring custom client unwrapping.</li>
+    </ul>
+  </li>
+</ol>
+
+</body>
+</html>
