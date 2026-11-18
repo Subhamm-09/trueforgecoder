@@ -1,0 +1,167 @@
+{
+  "name": "trueforge-coder",
+  "displayName": "TrueForge Coder",
+  "description": "Editor-native coding agent for Visual Studio Code powered by the TrueForge agent harness and MCP.",
+  "version": "1.0.0",
+  "publisher": "trueforge-forgeathon",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "trueforge-coder",
+          "title": "TrueForge Coder",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "views": {
+      "trueforge-coder": [
+        {
+          "type": "webview",
+          "id": "trueforge.agentPanel",
+          "name": "Agent Mode"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "trueforge.inlineEdit",
+        "title": "TrueForge: Inline Edit Selection",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "trueforge.openPanel",
+        "title": "TrueForge: Open Agent Panel",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "trueforge.cancelRun",
+        "title": "TrueForge: Cancel Active Generation",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "trueforge.undoLastEdit",
+        "title": "TrueForge: Undo Last Applied Edit",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "trueforge.acceptHunk",
+        "title": "TrueForge: Accept Hunk"
+      },
+      {
+        "command": "trueforge.rejectHunk",
+        "title": "TrueForge: Reject Hunk"
+      },
+      {
+        "command": "trueforge.acceptAllHunks",
+        "title": "TrueForge: Accept All Hunks"
+      },
+      {
+        "command": "trueforge.rejectAllHunks",
+        "title": "TrueForge: Reject All Hunks"
+      },
+      {
+        "command": "trueforge.submitReview",
+        "title": "TrueForge: Submit Hunk Review to TrueForge"
+      },
+      {
+        "command": "trueforge.openTrueForgeSession",
+        "title": "TrueForge: Open Session in TrueForge UI",
+        "icon": "$(link-external)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "trueforge.inlineEdit",
+        "key": "ctrl+shift+k",
+        "mac": "cmd+shift+k",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "trueforge.cancelRun",
+        "key": "ctrl+shift+escape",
+        "mac": "cmd+shift+escape"
+      },
+      {
+        "command": "trueforge.undoLastEdit",
+        "key": "ctrl+alt+z",
+        "mac": "cmd+alt+z"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "trueforge.inlineEdit",
+          "when": "editorHasSelection",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "TrueForge Coder",
+      "properties": {
+        "trueforge.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:8790",
+          "description": "Base URL of the local TrueForge agent harness server."
+        },
+        "trueforge.primaryModel": {
+          "type": "string",
+          "default": "google-gemini/gemini-3-5-flash-lite",
+          "description": "Primary TrueForge model FQN (provider/model). Must be configured in TrueForge."
+        },
+        "trueforge.fallbackModel": {
+          "type": "string",
+          "default": "google-gemini/gemini-3-1-flash-lite",
+          "description": "Automatic fallback TrueForge model FQN used with zero user action when the primary model fails."
+        },
+        "trueforge.autoFallback": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically fall back to trueforge.fallbackModel when the primary model fails."
+        },
+        "trueforge.contextTokenBudget": {
+          "type": "number",
+          "default": 4500,
+          "description": "Maximum token budget for automatic workspace context assembly (calibrated below TrueForge's 24k-char tool response cap)."
+        },
+        "trueforge.mcpPort": {
+          "type": "number",
+          "default": 8791,
+          "description": "Local TCP port for the embedded VS Code MCP server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "diff": "^7.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.vsix
+.env
+.env.local
+*.key
+secrets.json
+.DS_Store

@@ -1,0 +1,51 @@
+{
+  "description": "Example TrueForge model provider configuration. Replace placeholders with your own keys and apply via POST/PUT http://localhost:8790/api/v1/settings/model-providers or the TrueForge UI at http://localhost:8790. NEVER commit real API keys.",
+  "providers": [
+    {
+      "manifest": {
+        "type": "custom",
+        "name": "groq",
+        "base_url": "https://api.groq.com/openai/v1",
+        "auth": {
+          "api_key": "YOUR_GROQ_API_KEY"
+        },
+        "models": [
+          {
+            "model_id": "openai/gpt-oss-120b",
+            "name": "gpt-oss-120b",
+            "properties": {
+              "context_length": 131072,
+              "max_output_tokens": 32768
+            }
+          }
+        ]
+      }
+    },
+    {
+      "manifest": {
+        "type": "google-gemini",
+        "base_url": "https://generativelanguage.googleapis.com/v1beta",
+        "auth": {
+          "api_key": "YOUR_GOOGLE_GEMINI_API_KEY"
+        },
+        "models": [
+          {
+            "model_id": "gemini-3.1-flash-lite",
+            "name": "gemini-3-1-flash-lite",
+            "properties": {
+              "context_length": 1048576,
+              "max_output_tokens": 65536
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "vscodeSettingsExample": {
+    "trueforge.serverUrl": "http://localhost:8790",
+    "trueforge.primaryModel": "groq/gpt-oss-120b",
+    "trueforge.fallbackModel": "google-gemini/gemini-3-1-flash-lite",
+    "trueforge.autoFallback": true,
+    "trueforge.contextTokenBudget": 12000
+  }
+}
