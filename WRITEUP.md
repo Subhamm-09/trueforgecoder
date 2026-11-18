@@ -10,7 +10,7 @@
 * **Team Name:** Blue.io
 * **Team Members:**
   * **Bandita Priyadarshini** (GitHub: `@bandita-priyadarshini` | Institution: National Institute of Technology)
-  * **Subham Srinibas Panda** (GitHub: `@subham-panda` | Email: `subhamsrinivaspanda@gmail.com` | Institution: National Institute of Technology)
+  * **Subham Srinibas Panda** (GitHub: `@Subhamm-09` | Email: `subhamsrinivaspanda@gmail.com` | Institution: National Institute of Technology)
 
 ---
 

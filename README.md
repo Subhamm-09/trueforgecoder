@@ -9,7 +9,7 @@ Built for the **Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon** (R
 * **Team Name:** Blue.io
 * **Team Members:**
   * **Bandita Priyadarshini** (GitHub: `@bandita-priyadarshini`)
-  * **Subham Srinibas Panda** (GitHub: `@subham-panda`)
+  * **Subham Srinibas Panda** (GitHub: `@Subhamm-09`)
 
 ---
 
