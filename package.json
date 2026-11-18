@@ -4,6 +4,10 @@
   "description": "Editor-native coding agent for Visual Studio Code powered by the TrueForge agent harness and MCP.",
   "version": "1.0.0",
   "publisher": "trueforge-forgeathon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Subhamm-09/trueforgecoder.git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
