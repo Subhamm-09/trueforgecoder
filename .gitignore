@@ -6,3 +6,9 @@ dist/
 *.key
 secrets.json
 .DS_Store
+
+# Competition submission drafts & scripts
+WRITEUP.md
+WRITEUP.html
+DEMO_SCRIPT.md
+*.pdf

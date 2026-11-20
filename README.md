@@ -13,10 +13,7 @@ Built for the **Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon** (R
 
 ---
 
-## Deliverables & Documentation Links
-* 📄 **Technical Write-up (Markdown):** [`WRITEUP.md`](./WRITEUP.md) — Complete 8-section technical report with rubric anchors.
-* 🖨️ **Technical Write-up (Print-ready HTML/PDF):** [`WRITEUP.html`](./WRITEUP.html) — Styled for 1-to-3 page PDF export (`Ctrl + P`).
-* 🎬 **Demo Video Script:** [`DEMO_SCRIPT.md`](./DEMO_SCRIPT.md) — Second-by-second video recording walkthrough under 4 minutes.
+## Documentation & Configuration
 * ⚙️ **Example Configuration:** [`config.example.json`](./config.example.json) — Zero secrets / API keys committed.
 * 🤖 **Agent Definition:** [`agent-definition.json`](./agent-definition.json) — TrueForge agent specification with deferred tools & compaction.
 
