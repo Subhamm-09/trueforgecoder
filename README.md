@@ -19,6 +19,19 @@ Built for the **Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon** (R
 
 ---
 
+## Interface & Highlights
+
+| **Inline Edit & Live Streaming (`Ctrl+Shift+K`)** | **Agent Mode Panel & Model Switcher** |
+| :---: | :---: |
+| ![Inline Edit Overview](./images/inline-edit-overview.png) | ![Agent Panel UI](./images/agent-panel-ui.png) |
+
+<p align="center">
+  <b>Automatic Resilience Fallback (Task C)</b><br/>
+  <img src="./images/resilience-fallback.png" alt="Resilience Fallback" width="480" />
+</p>
+
+---
+
 ## Starting Point Declaration
 
 * Built **from scratch** specifically for this competition using the official VS Code Extension API (`vscode`), `@modelcontextprotocol/sdk`, and `diff`.
