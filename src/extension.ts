@@ -11,7 +11,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const getWorkspaceRoot = (): string | undefined => {
     const folders = vscode.workspace.workspaceFolders;
-    return folders && folders.length > 0 ? folders[0].uri.fsPath : undefined;
+    if (!folders || folders.length === 0) {
+      return undefined;
+    }
+    const raw = folders[0].uri.fsPath;
+    // On Windows, normalize drive letter to uppercase so pytest/Click path assertions match sys.path exactly
+    return process.platform === 'win32' && /^[a-z]:/i.test(raw)
+      ? raw[0].toUpperCase() + raw.slice(1)
+      : raw;
   };
 
   const getServerUrl = (): string =>

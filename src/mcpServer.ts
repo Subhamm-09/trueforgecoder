@@ -349,17 +349,22 @@ export class EditorMcpServer implements vscode.Disposable {
     // 7. run_command (deferred, destructive — requires TrueForge approval)
     server.tool(
       'run_command',
-      'Run a terminal command inside the workspace root (e.g. pytest or flask --help). Requires user approval.',
+      'Run a terminal command inside the workspace root (e.g. pytest tests/test_cli.py -q or flask --help). Requires user approval. For verification, run targeted tests like pytest tests/test_cli.py -q rather than bare pytest.',
       {
         command: z.string().describe('Shell command to execute.'),
         timeout_ms: z.number().int().min(1000).max(120000).optional().describe('Timeout in ms (default 30000).'),
       },
       { readOnlyHint: false, destructiveHint: true },
       async ({ command, timeout_ms }) => {
-        const root = this.getWorkspaceRoot();
-        if (!root) {
+        const rawRoot = this.getWorkspaceRoot();
+        if (!rawRoot) {
           return { content: [{ type: 'text', text: 'Error: No workspace folder open.' }], isError: true };
         }
+        // Normalize drive letter to uppercase so Windows Python sys.path string comparisons match exactly
+        const root =
+          process.platform === 'win32' && /^[a-z]:/i.test(rawRoot)
+            ? rawRoot[0].toUpperCase() + rawRoot.slice(1)
+            : rawRoot;
         this._onToolActivity.fire({
           tool: 'run_command',
           summary: command,
