@@ -128,7 +128,7 @@ export class EditorMcpServer implements vscode.Disposable {
         if (!root) {
           return { content: [{ type: 'text', text: 'Error: No workspace folder open.' }], isError: true };
         }
-        const limit = max_results ?? 50;
+        const limit = max_results ?? 20;
         const files = listWorkspaceFiles(root);
         let regex: RegExp;
         try {
@@ -388,7 +388,10 @@ export class EditorMcpServer implements vscode.Disposable {
             timeout: timeout_ms ?? 30000,
             maxBuffer: 2 * 1024 * 1024,
           });
-          const out = [stdout?.trim(), stderr?.trim()].filter(Boolean).join('\n--- STDERR ---\n');
+          let out = [stdout?.trim(), stderr?.trim()].filter(Boolean).join('\n--- STDERR ---\n');
+          if (out.length > 2500) {
+            out = '... [truncated earlier output to preserve token quota]\n' + out.slice(-2500);
+          }
           this._onToolActivity.fire({
             tool: 'command_result',
             summary: JSON.stringify({ command, exitCode: 0, output: out || '(no output)' }),
@@ -397,7 +400,10 @@ export class EditorMcpServer implements vscode.Disposable {
             content: [{ type: 'text', text: `Exit code: 0\n${out || '(no output)'}` }],
           };
         } catch (err: any) {
-          const out = [err.stdout?.trim(), err.stderr?.trim(), err.message].filter(Boolean).join('\n');
+          let out = [err.stdout?.trim(), err.stderr?.trim(), err.message].filter(Boolean).join('\n');
+          if (out.length > 2500) {
+            out = '... [truncated earlier output to preserve token quota]\n' + out.slice(-2500);
+          }
           this._onToolActivity.fire({
             tool: 'command_result',
             summary: JSON.stringify({ command, exitCode: err.code ?? 1, output: out }),
