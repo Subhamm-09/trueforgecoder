@@ -500,21 +500,204 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
   .model-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 8px;
+    position: relative;
   }
-  .field label { display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
-  select {
+  .field {
+    position: relative;
+    min-width: 0;
+  }
+  .field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .custom-select {
+    position: relative;
     width: 100%;
-    background: rgba(0, 0, 0, 0.25);
+  }
+  .custom-select-trigger {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
     color: var(--fg);
     border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 4px 6px;
+    border-radius: 6px;
+    padding: 5px 8px;
     font-size: 11px;
-    outline: none;
+    font-family: var(--font-code);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
     cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    user-select: none;
+    box-sizing: border-box;
   }
-  select:focus { border-color: var(--accent); }
+  .custom-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .custom-select.open .custom-select-trigger {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+    background: rgba(0, 0, 0, 0.55);
+  }
+  .model-badge-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .model-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .select-chevron {
+    font-size: 9px;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .custom-select.open .select-chevron {
+    transform: rotate(180deg);
+  }
+  .custom-select-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 280px;
+    max-height: 260px;
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  .custom-select.open .custom-select-menu {
+    display: flex;
+  }
+  #fallbackDropdown .custom-select-menu {
+    left: auto;
+    right: 0;
+  }
+  .custom-select-search-wrap {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .custom-select-search {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: var(--fg);
+    font-size: 11px;
+    font-family: var(--vscode-font-family);
+    outline: none;
+    box-sizing: border-box;
+  }
+  .custom-select-search:focus {
+    border-color: var(--accent);
+  }
+  .custom-select-items {
+    overflow-y: auto;
+    max-height: 210px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .custom-select-items::-webkit-scrollbar { width: 5px; }
+  .custom-select-items::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  .custom-select-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    user-select: none;
+  }
+  .custom-select-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .custom-select-item.selected {
+    background: rgba(37, 99, 235, 0.2);
+  }
+  .item-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1;
+  }
+  .item-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .item-name {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1;
+  }
+  .item-title {
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: 500;
+    color: #f4f4f5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .custom-select-item.selected .item-title {
+    color: #93c5fd;
+    font-weight: 600;
+  }
+  .item-provider {
+    font-size: 9.5px;
+    color: var(--muted);
+  }
+  .item-check {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .item-badge-fault {
+    font-size: 8.5px;
+    font-weight: 600;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
   /* Feed & Chat Bubbles */
   .feed {
     flex: 1;
@@ -701,11 +884,25 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
     <div class="model-grid">
       <div class="field">
         <label>Primary Model</label>
-        <select id="primarySelect"></select>
+        <div class="custom-select" id="primaryDropdown">
+          <button class="custom-select-trigger" id="primaryTrigger" type="button" title="Select Primary Model">
+            <span class="model-badge-icon">⚡</span>
+            <span class="model-text" id="primarySelectedText">Loading...</span>
+            <span class="select-chevron">▾</span>
+          </button>
+          <div class="custom-select-menu" id="primaryMenu"></div>
+        </div>
       </div>
       <div class="field">
-        <label>Auto-Fallback Model</label>
-        <select id="fallbackSelect"></select>
+        <label>Auto-Fallback</label>
+        <div class="custom-select" id="fallbackDropdown">
+          <button class="custom-select-trigger" id="fallbackTrigger" type="button" title="Select Auto-Fallback Model">
+            <span class="model-badge-icon">🛡️</span>
+            <span class="model-text" id="fallbackSelectedText">(Disabled)</span>
+            <span class="select-chevron">▾</span>
+          </button>
+          <div class="custom-select-menu" id="fallbackMenu"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -748,8 +945,6 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
   const undoBtn = document.getElementById('undoBtn');
   const sessionBtn = document.getElementById('sessionBtn');
   const newBtn = document.getElementById('newBtn');
-  const primarySelect = document.getElementById('primarySelect');
-  const fallbackSelect = document.getElementById('fallbackSelect');
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
   const mentionsPopup = document.getElementById('mentionsPopup');
@@ -933,37 +1128,164 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
     else if (action === 'denyCmd') vscode.postMessage({ type: 'commandApprovalDecision', id: cmdId, allow: false });
   });
 
-  function populateSelect(el, models, currentValue, allowEmpty) {
-    el.innerHTML = '';
-    if (allowEmpty) {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = '(Disabled)';
-      el.appendChild(opt);
+  function closeAllDropdowns(except) {
+    document.querySelectorAll('.custom-select').forEach(cs => {
+      if (!except || cs !== except) cs.classList.remove('open');
+    });
+  }
+  document.addEventListener('click', () => closeAllDropdowns());
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAllDropdowns();
+  });
+
+  class CustomModelDropdown {
+    constructor(containerId, isFallback) {
+      this.container = document.getElementById(containerId);
+      this.trigger = this.container.querySelector('.custom-select-trigger');
+      this.textEl = this.container.querySelector('.model-text');
+      this.iconEl = this.container.querySelector('.model-badge-icon');
+      this.menu = this.container.querySelector('.custom-select-menu');
+      this.isFallback = isFallback;
+      this.models = [];
+      this.currentValue = '';
+      this.onChange = null;
+
+      this.trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = this.container.classList.contains('open');
+        closeAllDropdowns();
+        if (!wasOpen) {
+          this.container.classList.add('open');
+          const searchInput = this.menu.querySelector('.custom-select-search');
+          if (searchInput) {
+            searchInput.value = '';
+            this.filterItems('');
+            setTimeout(() => searchInput.focus(), 40);
+          }
+        }
+      });
     }
-    const list = [...models];
-    if (currentValue && !list.includes(currentValue)) {
-      list.unshift(currentValue);
+
+    setModels(models, currentValue) {
+      this.models = [...models];
+      this.currentValue = currentValue || '';
+      if (this.currentValue && !this.models.includes(this.currentValue)) {
+        this.models.unshift(this.currentValue);
+      }
+      this.render();
     }
-    for (const m of list) {
-      const opt = document.createElement('option');
-      opt.value = m;
-      opt.textContent = m;
-      if (m === currentValue) opt.selected = true;
-      el.appendChild(opt);
+
+    render() {
+      if (this.isFallback && !this.currentValue) {
+        this.textEl.textContent = '(Disabled)';
+        this.textEl.style.opacity = '0.6';
+        this.iconEl.textContent = '⚪';
+      } else if (this.currentValue.includes('invalid')) {
+        this.textEl.textContent = this.currentValue;
+        this.textEl.style.opacity = '1';
+        this.iconEl.textContent = '⚠️';
+      } else {
+        this.textEl.textContent = this.currentValue || 'Select model...';
+        this.textEl.style.opacity = '1';
+        this.iconEl.textContent = this.isFallback ? '🛡️' : '⚡';
+      }
+
+      this.menu.innerHTML = '';
+
+      const searchWrap = document.createElement('div');
+      searchWrap.className = 'custom-select-search-wrap';
+      searchWrap.innerHTML = '<input type="text" class="custom-select-search" placeholder="Filter models..." spellcheck="false" />';
+      const searchInput = searchWrap.querySelector('input');
+      searchInput.addEventListener('click', (e) => e.stopPropagation());
+      searchInput.addEventListener('input', (e) => {
+        this.filterItems(e.target.value);
+      });
+      this.menu.appendChild(searchWrap);
+
+      const itemsWrap = document.createElement('div');
+      itemsWrap.className = 'custom-select-items';
+
+      if (this.isFallback) {
+        const disabledItem = document.createElement('div');
+        disabledItem.className = 'custom-select-item' + (!this.currentValue ? ' selected' : '');
+        disabledItem.setAttribute('data-model', '');
+        disabledItem.innerHTML = '<div class="item-left"><span class="item-icon">⚪</span>' +
+          '<div class="item-name"><span class="item-title">(Disabled)</span><span class="item-provider">No automatic fallback</span></div></div>' +
+          (!this.currentValue ? '<span class="item-check">✓</span>' : '');
+        disabledItem.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectModel('');
+        });
+        itemsWrap.appendChild(disabledItem);
+      }
+
+      for (const m of this.models) {
+        const isSelected = m === this.currentValue;
+        const item = document.createElement('div');
+        item.className = 'custom-select-item' + (isSelected ? ' selected' : '');
+        item.setAttribute('data-model', m.toLowerCase());
+
+        let icon = this.isFallback ? '🛡️' : '⚡';
+        let badgeHtml = '';
+        if (m.includes('invalid')) {
+          icon = '⚠️';
+          badgeHtml = '<span class="item-badge-fault">Fault Test</span>';
+        }
+
+        const parts = m.split('/');
+        const provider = parts.length > 1 ? parts[0] : '';
+        const modelName = parts.length > 1 ? parts[1] : m;
+
+        item.innerHTML = '<div class="item-left"><span class="item-icon">' + icon + '</span><div class="item-name">' +
+          '<div style="display:flex;align-items:center;gap:5px;"><span class="item-title">' + esc(modelName) + '</span>' + badgeHtml + '</div>' +
+          '<span class="item-provider">' + esc(provider || 'provider') + '</span></div></div>' +
+          (isSelected ? '<span class="item-check">✓</span>' : '');
+
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectModel(m);
+        });
+        itemsWrap.appendChild(item);
+      }
+
+      this.menu.appendChild(itemsWrap);
+    }
+
+    filterItems(query) {
+      const q = query.trim().toLowerCase();
+      const items = this.menu.querySelectorAll('.custom-select-items .custom-select-item');
+      items.forEach(it => {
+        const m = it.getAttribute('data-model') || '';
+        const title = it.querySelector('.item-title')?.textContent.toLowerCase() || '';
+        if (!q || m.includes(q) || title.includes(q)) {
+          it.style.display = 'flex';
+        } else {
+          it.style.display = 'none';
+        }
+      });
+    }
+
+    selectModel(val) {
+      this.currentValue = val;
+      this.container.classList.remove('open');
+      this.render();
+      if (this.onChange) this.onChange(val);
     }
   }
 
-  primarySelect.addEventListener('change', () => {
-    vscode.postMessage({ type: 'setModels', primaryModel: primarySelect.value });
-  });
-  fallbackSelect.addEventListener('change', () => {
+  const primaryDropdown = new CustomModelDropdown('primaryDropdown', false);
+  const fallbackDropdown = new CustomModelDropdown('fallbackDropdown', true);
+
+  primaryDropdown.onChange = (val) => {
+    vscode.postMessage({ type: 'setModels', primaryModel: val });
+  };
+  fallbackDropdown.onChange = (val) => {
     vscode.postMessage({
       type: 'setModels',
-      fallbackModel: fallbackSelect.value,
-      autoFallback: fallbackSelect.value !== '',
+      fallbackModel: val,
+      autoFallback: val !== '',
     });
-  });
+  };
 
   sendBtn.addEventListener('click', () => {
     const text = promptInput.value.trim();
@@ -1017,8 +1339,8 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
       case 'initState': {
         statusDot.className = 'dot' + (msg.connected ? ' ok' : '');
         statusText.textContent = msg.connected ? 'TrueForge Online' : 'TrueForge Offline';
-        populateSelect(primarySelect, msg.models || [], msg.primaryModel, false);
-        populateSelect(fallbackSelect, msg.models || [], msg.autoFallback ? msg.fallbackModel : '', true);
+        primaryDropdown.setModels(msg.models || [], msg.primaryModel);
+        fallbackDropdown.setModels(msg.models || [], msg.autoFallback ? msg.fallbackModel : '');
         undoBtn.textContent = '↺ Undo (' + (msg.undoCount || 0) + ')';
         undoBtn.disabled = !(msg.undoCount > 0);
         if (msg.lastUndoFile) undoBtn.title = 'Undo last applied edit: ' + msg.lastUndoFile;
