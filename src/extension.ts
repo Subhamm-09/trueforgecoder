@@ -53,6 +53,17 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
     mcpServer.onToolActivity((act) => {
       output.appendLine(`[MCP Tool] ${act.tool}: ${act.summary}`);
+      if (act.tool === 'command_result') {
+        try {
+          const parsed = JSON.parse(act.summary);
+          agentPanelProvider.postExternalEvent({
+            type: 'terminalOutput',
+            command: parsed.command,
+            exitCode: parsed.exitCode,
+            output: parsed.output,
+          });
+        } catch {}
+      }
     })
   );
 
@@ -164,11 +175,11 @@ export async function activate(context: vscode.ExtensionContext) {
         output.appendLine(`[TrueForge] Saved agent sync note: ${agentErr?.message || agentErr}`);
       }
 
-      statusBar.text = '$(sparkle) TrueForge: Connected';
-      statusBar.tooltip = `TrueForge Harness: ${getServerUrl()} | MCP: ${mcpUrl}`;
+      statusBar.text = '$(sparkle) Blueprint: Connected';
+      statusBar.tooltip = `Blueprint | TrueForge Harness: ${getServerUrl()} | MCP: ${mcpUrl}`;
       await agentPanelProvider.refreshModelsAndStatus();
     } else {
-      statusBar.text = '$(warning) TrueForge: Offline';
+      statusBar.text = '$(warning) Blueprint: TrueForge Offline';
       statusBar.tooltip = `Start TrueForge locally with: npx @truefoundry/trueforge`;
       vscode.window.showWarningMessage(
         `TrueForge server not reachable at ${getServerUrl()}. Start it with: npx @truefoundry/trueforge`

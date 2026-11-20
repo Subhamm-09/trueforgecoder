@@ -1,6 +1,6 @@
 {
   "name": "trueforge-coder",
-  "displayName": "TrueForge Coder",
+  "displayName": "Blueprint",
   "description": "Editor-native coding agent for Visual Studio Code powered by the TrueForge agent harness and MCP.",
   "version": "1.0.0",
   "publisher": "trueforge-forgeathon",
@@ -26,7 +26,7 @@
       "activitybar": [
         {
           "id": "trueforge-coder",
-          "title": "TrueForge Coder",
+          "title": "Blueprint",
           "icon": "$(sparkle)"
         }
       ]
@@ -36,54 +36,54 @@
         {
           "type": "webview",
           "id": "trueforge.agentPanel",
-          "name": "Agent Mode"
+          "name": "Blueprint: Agent Mode"
         }
       ]
     },
     "commands": [
       {
         "command": "trueforge.inlineEdit",
-        "title": "TrueForge: Inline Edit Selection",
+        "title": "Blueprint: Inline Edit Selection",
         "icon": "$(edit)"
       },
       {
         "command": "trueforge.openPanel",
-        "title": "TrueForge: Open Agent Panel",
+        "title": "Blueprint: Open Agent Panel",
         "icon": "$(comment-discussion)"
       },
       {
         "command": "trueforge.cancelRun",
-        "title": "TrueForge: Cancel Active Generation",
+        "title": "Blueprint: Cancel Active Generation",
         "icon": "$(debug-stop)"
       },
       {
         "command": "trueforge.undoLastEdit",
-        "title": "TrueForge: Undo Last Applied Edit",
+        "title": "Blueprint: Undo Last Applied Edit",
         "icon": "$(discard)"
       },
       {
         "command": "trueforge.acceptHunk",
-        "title": "TrueForge: Accept Hunk"
+        "title": "Blueprint: Accept Hunk"
       },
       {
         "command": "trueforge.rejectHunk",
-        "title": "TrueForge: Reject Hunk"
+        "title": "Blueprint: Reject Hunk"
       },
       {
         "command": "trueforge.acceptAllHunks",
-        "title": "TrueForge: Accept All Hunks"
+        "title": "Blueprint: Accept All Hunks"
       },
       {
         "command": "trueforge.rejectAllHunks",
-        "title": "TrueForge: Reject All Hunks"
+        "title": "Blueprint: Reject All Hunks"
       },
       {
         "command": "trueforge.submitReview",
-        "title": "TrueForge: Submit Hunk Review to TrueForge"
+        "title": "Blueprint: Submit Hunk Review to TrueForge"
       },
       {
         "command": "trueforge.openTrueForgeSession",
-        "title": "TrueForge: Open Session in TrueForge UI",
+        "title": "Blueprint: Open Session in TrueForge UI",
         "icon": "$(link-external)"
       }
     ],
@@ -115,7 +115,7 @@
       ]
     },
     "configuration": {
-      "title": "TrueForge Coder",
+      "title": "Blueprint",
       "properties": {
         "trueforge.serverUrl": {
           "type": "string",

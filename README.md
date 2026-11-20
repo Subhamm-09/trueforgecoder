@@ -1,4 +1,4 @@
-# TrueForge Coder — Editor-Native VS Code Coding Agent
+# Blueprint — Editor-Native VS Code Coding Agent on TrueForge
 
 [![Techfest 2026-27](https://img.shields.io/badge/Techfest%202026--27-IIT%20Bombay-blue)](https://techfest.org)
 [![TrueFoundry Forge-a-thon](https://img.shields.io/badge/TrueFoundry-Forge--a--thon-orange)](https://github.com/truefoundry/trueforge)
@@ -6,6 +6,7 @@
 
 Built for the **Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon** (Round 1 Submission).
 
+* **Project Name:** Blueprint
 * **Team Name:** Blue.io
 * **Team Members:**
   * **Bandita Priyadarshini** (GitHub: `@bandita-priyadarshini`)
@@ -16,6 +17,7 @@ Built for the **Techfest 2026–27 (IIT Bombay) · TrueFoundry Forge-a-thon** (R
 ## Documentation & Configuration
 * ⚙️ **Example Configuration:** [`config.example.json`](./config.example.json) — Zero secrets / API keys committed.
 * 🤖 **Agent Definition:** [`agent-definition.json`](./agent-definition.json) — TrueForge agent specification with deferred tools & compaction.
+* 🚀 **Round 2 Upstream Proposal:** [`docs/ROUND2_PR_PROPOSAL.md`](./docs/ROUND2_PR_PROPOSAL.md) — Pre-engineered PR proposal for TrueForge engine.
 
 ---
 

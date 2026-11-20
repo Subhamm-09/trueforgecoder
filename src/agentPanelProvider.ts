@@ -747,7 +747,69 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
     font-size: 10px; font-weight: 400; padding: 1px 6px; border-radius: 4px;
     background: rgba(255, 255, 255, 0.07); color: var(--muted); font-family: var(--font-code);
   }
-  /* Context Assembly Meter */
+  /* Context Assembly Multi-Signal Segmented Meter */
+  .budget-segmented-bar {
+    height: 7px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 6px 0;
+    display: flex;
+    width: 100%;
+  }
+  .seg-fill { height: 100%; transition: width 0.3s ease; }
+  .seg-src { background: #3b82f6; }   /* Blue: Source */
+  .seg-doc { background: #a855f7; }   /* Purple: Docs */
+  .seg-test { background: #22c55e; }  /* Green: Tests */
+  .seg-other { background: #f59e0b; } /* Amber: Support */
+  .budget-legend {
+    display: flex;
+    gap: 10px;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 4px; }
+  .dot-legend { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-src { background: #3b82f6; }
+  .dot-doc { background: #a855f7; }
+  .dot-test { background: #22c55e; }
+  .dot-other { background: #f59e0b; }
+
+  /* Interactive Terminal Card */
+  .card.terminal {
+    background: #09090b;
+    border-left: 3px solid #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+  }
+  .terminal-cmd {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: #38bdf8;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin: 4px 0 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .terminal-body {
+    font-family: var(--font-code);
+    font-size: 10.5px;
+    color: #e2e8f0;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 8px;
+    border-radius: 4px;
+    max-height: 160px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .terminal-body::-webkit-scrollbar { width: 4px; }
+  .terminal-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
   .budget-bar {
     height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 99px; overflow: hidden; margin: 4px 0 8px;
   }
@@ -909,7 +971,7 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
 
   <div id="feed" class="feed">
     <div class="card">
-      <div class="card-title">✦ TrueForge Coder Ready</div>
+      <div class="card-title">✦ Blueprint Ready</div>
       <div class="markdown-body" style="color:var(--muted)">
         <p>• Type any multi-file instruction below (Agent Mode) — <strong>no file names needed</strong>.</p>
         <p>• Type <code>@</code> to search &amp; attach specific <strong>@file</strong> or <strong>@symbol</strong> targets.</p>
@@ -924,7 +986,7 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
   <div class="composer">
     <div id="mentionsPopup" class="mentions-popup"></div>
     <div class="input-wrapper">
-      <textarea id="promptInput" placeholder="Ask TrueForge Coder to add a feature, refactor, or type @file / @symbol..."></textarea>
+      <textarea id="promptInput" placeholder="Ask Blueprint to add a feature, refactor, or type @file / @symbol..."></textarea>
       <div class="composer-footer">
         <span class="hint">↵ send · Shift+↵ newline</span>
         <div class="row">
@@ -1043,12 +1105,58 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
   }
 
   function renderContextReport(report) {
-    const pct = Math.min(100, Math.round((report.tokensUsed / Math.max(1, report.tokenBudget)) * 100));
+    const totalCap = Math.max(1, report.tokenBudget);
+    const pct = Math.min(100, Math.round((report.tokensUsed / totalCap) * 100));
+
+    // Calculate architectural role breakdowns
+    let srcTok = 0, docTok = 0, testTok = 0, otherTok = 0;
+    for (const item of report.selected) {
+      const p = (item.relativePath || '').toLowerCase();
+      const tok = item.estimatedTokens || 0;
+      if (p.startsWith('src/') || p.includes('/src/')) {
+        srcTok += tok;
+      } else if (p.startsWith('docs/') || p.endsWith('.rst') || p.endsWith('.md')) {
+        docTok += tok;
+      } else if (p.startsWith('tests/') || p.includes('test_')) {
+        testTok += tok;
+      } else {
+        otherTok += tok;
+      }
+    }
+    const used = Math.max(1, report.tokensUsed);
+    const srcPct = Math.round((srcTok / used) * 100);
+    const docPct = Math.round((docTok / used) * 100);
+    const testPct = Math.round((testTok / used) * 100);
+    const otherPct = Math.max(0, 100 - srcPct - docPct - testPct);
+
+    // Scaled widths relative to overall budget bar
+    const scale = pct / 100;
+    const wSrc = (srcPct * scale).toFixed(1);
+    const wDoc = (docPct * scale).toFixed(1);
+    const wTest = (testPct * scale).toFixed(1);
+    const wOther = (otherPct * scale).toFixed(1);
+
     const card = document.createElement('div');
     card.className = 'card context';
-    let html = '<div class="card-title"><span>Context Assembly (Budget-Capped)</span><span class="model-pill">' +
-      report.tokensUsed + ' / ' + report.tokenBudget + ' tok (' + pct + '%)</span></div>';
-    html += '<div class="budget-bar"><div class="budget-fill" style="width:' + pct + '%"></div></div>';
+    let html = '<div class="card-title"><span>Context Assembly (Budget: ' + report.tokensUsed + ' / ' + report.tokenBudget + ' tok · ' + pct + '%)</span>' +
+      '<span class="model-pill">Knapsack Capped</span></div>';
+
+    // Segmented bar
+    html += '<div class="budget-segmented-bar">' +
+      '<div class="seg-fill seg-src" style="width:' + wSrc + '%" title="Source: ' + srcTok + ' tok (' + srcPct + '%)"></div>' +
+      '<div class="seg-fill seg-doc" style="width:' + wDoc + '%" title="Documentation: ' + docTok + ' tok (' + docPct + '%)"></div>' +
+      '<div class="seg-fill seg-test" style="width:' + wTest + '%" title="Tests: ' + testTok + ' tok (' + testPct + '%)"></div>' +
+      (otherTok > 0 ? '<div class="seg-fill seg-other" style="width:' + wOther + '%" title="Support: ' + otherTok + ' tok (' + otherPct + '%)"></div>' : '') +
+    '</div>';
+
+    // Legend
+    html += '<div class="budget-legend">' +
+      '<span class="legend-item"><span class="dot-legend dot-src"></span>Source (' + srcPct + '%)</span>' +
+      '<span class="legend-item"><span class="dot-legend dot-doc"></span>Docs (' + docPct + '%)</span>' +
+      '<span class="legend-item"><span class="dot-legend dot-test"></span>Tests (' + testPct + '%)</span>' +
+      (otherTok > 0 ? '<span class="legend-item"><span class="dot-legend dot-other"></span>Support (' + otherPct + '%)</span>' : '') +
+    '</div>';
+
     html += '<div style="font-size:10.5px;color:var(--muted);margin-bottom:6px">Scanned ' + report.totalFilesScanned + ' files · Selected ' + report.selected.length + ' targets:</div>';
     for (const item of report.selected) {
       html += '<div class="ctx-item">' +
@@ -1438,6 +1546,18 @@ export class AgentPanelProvider implements vscode.WebviewViewProvider {
         chip.className = 'tool-chip';
         chip.textContent = '🗜 TrueForge Compaction: ' + msg.status;
         currentToolsEl.appendChild(chip);
+        scrollBottom();
+        break;
+      }
+      case 'terminalOutput': {
+        const card = document.createElement('div');
+        card.className = 'card terminal';
+        const isOk = msg.exitCode === 0;
+        card.innerHTML = '<div class="card-title"><span>💻 Terminal Execution</span>' +
+          '<span class="model-pill" style="color:' + (isOk ? '#86efac' : '#fca5a5') + ';border:1px solid ' + (isOk ? '#22c55e' : '#ef4444') + '">Exit ' + msg.exitCode + (isOk ? ' (Success)' : ' (Failed)') + '</span></div>' +
+          '<div class="terminal-cmd"><span>$ ' + esc(msg.command) + '</span></div>' +
+          '<pre class="terminal-body">' + esc(msg.output || '(no output)') + '</pre>';
+        feed.appendChild(card);
         scrollBottom();
         break;
       }

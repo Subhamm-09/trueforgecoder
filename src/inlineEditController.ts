@@ -47,7 +47,7 @@ export class InlineEditController {
     const selectedCode = document.getText(effectiveRange);
 
     const instruction = await vscode.window.showInputBox({
-      title: `TrueForge Inline Edit — ${relativePath} (L${startLine}–L${endLine})`,
+      title: `Blueprint Inline Edit — ${relativePath} (L${startLine}–L${endLine})`,
       prompt: 'Enter your edit instruction in plain language (runs through TrueForge agent harness)',
       placeHolder: `e.g. Treat 'off' and 'n' as false as well, case-insensitively, and update the docstring`,
       ignoreFocusOut: true,
@@ -92,14 +92,14 @@ export class InlineEditController {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: `TrueForge Inline Edit (${primaryModel})`,
+        title: `Blueprint Inline Edit (${primaryModel})`,
         cancellable: true,
       },
       async (progress, cancelToken) => {
         cancelToken.onCancellationRequested(async () => {
           this.diffReviewManager.cancelAllPendingReviews('Cancelled from progress notification');
           await this.client.cancelActiveTurn();
-          vscode.window.showInformationMessage('TrueForge: Inline edit cancelled. Workspace unchanged.');
+          vscode.window.showInformationMessage('Blueprint: Inline edit cancelled. Workspace unchanged.');
         });
 
         progress.report({ message: 'Streaming from TrueForge...' });

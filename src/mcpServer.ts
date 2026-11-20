@@ -384,11 +384,19 @@ export class EditorMcpServer implements vscode.Disposable {
             maxBuffer: 2 * 1024 * 1024,
           });
           const out = [stdout?.trim(), stderr?.trim()].filter(Boolean).join('\n--- STDERR ---\n');
+          this._onToolActivity.fire({
+            tool: 'command_result',
+            summary: JSON.stringify({ command, exitCode: 0, output: out || '(no output)' }),
+          });
           return {
             content: [{ type: 'text', text: `Exit code: 0\n${out || '(no output)'}` }],
           };
         } catch (err: any) {
           const out = [err.stdout?.trim(), err.stderr?.trim(), err.message].filter(Boolean).join('\n');
+          this._onToolActivity.fire({
+            tool: 'command_result',
+            summary: JSON.stringify({ command, exitCode: err.code ?? 1, output: out }),
+          });
           return {
             content: [{ type: 'text', text: `Exit code: ${err.code ?? 1}\n${out}` }],
             isError: true,
